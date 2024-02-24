@@ -35,6 +35,27 @@ export const Desktop: FC = () => {
     setDesktopItems([])
   }, [])
 
+  const renameItem = useCallback((id: number, name: string) => {
+    setDesktopItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) return { ...item, name }
+        return item
+      }),
+    )
+  }, [])
+
+  const updateItemCoords = useCallback((id: number, coords: Coords) => {
+    setDesktopItems((prev) => prev.map((item) => (item.id === id ? { ...item, coords } : item)))
+  }, [])
+
+  const setActiveItemId = useCallback(
+    (id: number) => {
+      if (activeItemsId.includes(id)) setActiveItemsId((prev) => prev.filter((i) => i !== id))
+      else setActiveItemsId([id])
+    },
+    [activeItemsId],
+  )
+
   return (
     <div
       className='desktop'
@@ -49,19 +70,10 @@ export const Desktop: FC = () => {
           key={item.id}
           item={item}
           isActive={activeItemsId.includes(item.id)}
-          renameItem={(id: number, name: string) => {
-            setDesktopItems((prev) =>
-              prev.map((item) => {
-                if (item.id === id) return { ...item, name }
-                return item
-              }),
-            )
-          }}
+          renameItem={renameItem}
           selectionCoords={selectionAreaCoords}
-          setActiveItemId={(id: number) => {
-            if (activeItemsId.includes(id)) setActiveItemsId((prev) => prev.filter((i) => i !== id))
-            else setActiveItemsId([item.id])
-          }}
+          updateCoords={updateItemCoords}
+          setActiveItemId={setActiveItemId}
         />
       ))}
     </div>
