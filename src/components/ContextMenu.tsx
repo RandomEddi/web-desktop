@@ -1,9 +1,9 @@
 import { useEffect, type FC, useState } from 'react'
 import { minmax } from '../utils'
-import { DesktopItemInterface } from '../Desktop'
+import { Coords, ItemType } from '../types'
 
 interface Props {
-  addItem: (item: DesktopItemInterface) => void
+  addItem: (coords: Coords, type: ItemType) => void
   deleteItems: () => void
 }
 
@@ -68,13 +68,9 @@ export const ContextMenu: FC<Props> = ({ addItem, deleteItems }) => {
       </label>
       <button
         onClick={() => {
+          console.log('asd')
           setContextMenuCoords(null)
-          addItem({
-            coords: { x: contextMenuCoords.left, y: contextMenuCoords.top },
-            id: Math.random(),
-            name: 'Папка',
-            type: 'folder',
-          })
+          addItem({ x: contextMenuCoords.left, y: contextMenuCoords.top }, 'folder')
         }}
       >
         Добавить папку
@@ -82,12 +78,7 @@ export const ContextMenu: FC<Props> = ({ addItem, deleteItems }) => {
       <button
         onClick={() => {
           setContextMenuCoords(null)
-          addItem({
-            coords: { x: contextMenuCoords.left, y: contextMenuCoords.top },
-            id: Math.random(),
-            name: 'Файл',
-            type: 'file',
-          })
+          addItem({ x: contextMenuCoords.left, y: contextMenuCoords.top }, 'file')
         }}
       >
         Добавить файл

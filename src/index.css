@@ -80,6 +80,7 @@ button {
 }
 
 .desktop-item {
+  z-index: 1;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -87,9 +88,10 @@ button {
   padding: 6px 10px 10px;
   border-radius: 4px;
   background-color: transparent;
+  user-select: none;
 }
 
-.desktop-item:hover {
+.desktop-item.hovered {
   background-color: rgb(0, 0, 0, 0.1);
 }
 

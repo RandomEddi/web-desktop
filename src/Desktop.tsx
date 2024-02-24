@@ -1,60 +1,52 @@
-import { useState, type FC, useEffect } from 'react'
+import { useState, type FC, useEffect, useCallback } from 'react'
 import { ContextMenu, SelectionArea, DesktopItem } from './components'
-
-export interface Coords {
-  initialX: number
-  initialY: number
-  x?: number
-  y?: number
-}
-
-export interface DesktopItemInterface {
-  id: number
-  name: string
-  type: 'file' | 'folder'
-  coords: {
-    x: number
-    y: number
-  }
-}
+import { useId } from './utils'
+import { Coords, DesktopItemInterface, ItemType, SelectionCoords } from './types'
 
 export const Desktop: FC = () => {
-  const [desktopItems, setDesktopItems] = useState<DesktopItemInterface[]>([
-    { id: 1, name: 'Файл', type: 'file', coords: { x: 0, y: 0 } },
-    { id: 2, name: 'Папка', type: 'folder', coords: { x: 300, y: 300 } },
-  ])
+  const [desktopItems, setDesktopItems] = useState<DesktopItemInterface[]>(
+    localStorage.getItem('desktopItems')
+      ? JSON.parse(localStorage.getItem('desktopItems') as string)
+      : [
+          { id: useId(), name: 'Файл', type: 'file', coords: { x: 0, y: 0 } },
+          { id: useId(), name: 'Папка', type: 'folder', coords: { x: 300, y: 300 } },
+        ],
+  )
   const [activeItemsId, setActiveItemsId] = useState<number[]>([])
-  const [selectionAreaCoords, setSelectionAreaCoords] = useState<null | Coords>(null)
+  const [selectionAreaCoords, setSelectionAreaCoords] = useState<null | SelectionCoords>(null)
 
   useEffect(() => {
-    const desktopItems = localStorage.getItem('desktopItems')
-
-    if (desktopItems) {
-      setDesktopItems(JSON.parse(desktopItems))
-    }
-  }, [])
-
-  useEffect(() => {
-    if (desktopItems.length > 0) {
-      localStorage.setItem('desktopItems', JSON.stringify(desktopItems))
-    }
+    localStorage.setItem('desktopItems', JSON.stringify(desktopItems))
   }, [desktopItems])
 
-  const addItem = (item: DesktopItemInterface) => {
-    setDesktopItems((prev) => [...prev, item])
-  }
+  const addItem = useCallback((coords: Coords, type: ItemType) => {
+    setDesktopItems((prev) => [
+      ...prev,
+      {
+        id: useId(desktopItems.map((item) => item.id)),
+        name: type === 'file' ? 'Файл' : 'Папка',
+        type,
+        coords: { x: coords.x, y: coords.y },
+      },
+    ])
+  }, [])
 
-  const deleteItems = () => {
+  const deleteItems = useCallback(() => {
     setDesktopItems([])
-  }
+  }, [])
 
   return (
-    <div className='desktop'>
+    <div
+      className='desktop'
+      onClick={() => {
+        setActiveItemsId([])
+      }}
+    >
       <SelectionArea coords={selectionAreaCoords} setCoords={setSelectionAreaCoords} />
-      <ContextMenu addItem={addItem} deleteItems={deleteItems}/>
+      <ContextMenu addItem={addItem} deleteItems={deleteItems} />
       {desktopItems.map((item) => (
         <DesktopItem
-          key={item.name}
+          key={item.id}
           item={item}
           isActive={activeItemsId.includes(item.id)}
           renameItem={(id: number, name: string) => {
@@ -65,6 +57,7 @@ export const Desktop: FC = () => {
               }),
             )
           }}
+          selectionCoords={selectionAreaCoords}
           setActiveItemId={(id: number) => {
             if (activeItemsId.includes(id)) setActiveItemsId((prev) => prev.filter((i) => i !== id))
             else setActiveItemsId([item.id])
