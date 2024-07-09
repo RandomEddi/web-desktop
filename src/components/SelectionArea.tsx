@@ -1,10 +1,10 @@
 import { useState, type FC, useEffect, type Dispatch, type SetStateAction } from 'react'
 import { minmax } from '../utils'
-import { Coords } from '../Desktop'
+import { SelectionCoords } from '../types'
 
 interface Props {
-  coords: null | Coords
-  setCoords: Dispatch<SetStateAction<null | Coords>>
+  coords: null | SelectionCoords
+  setCoords: Dispatch<SetStateAction<null | SelectionCoords>>
 }
 
 export const SelectionArea: FC<Props> = ({ coords, setCoords }) => {
